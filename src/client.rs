@@ -10,6 +10,7 @@ use hyper_native_tls::NativeTlsClient;
 
 header! { (ContentType, "Content-Type") => [String] }
 header! { (SubscriptionKey, "Ocp-Apim-Subscription-Key") => [String] }
+header! { (OperationLocation, "Operation-Location") => [String] }
 
 pub struct Client {
     key: String,
@@ -38,6 +39,18 @@ impl Client {
         self.request("multipart/form-data", &params, Some(audio))
     }
 
+    pub fn get_operation_status(&self, id: &str) -> Result<String, Error> {
+        let params = format!("operations/{}", id);
+        self.request("", &params, None)
+    }
+
+    pub fn get_operation_status_id(&self, id: &str) -> Result<String, Error> {
+        let res = try!(self.get_operation_status(id));
+        let v: serde_json::Value = serde_json::from_str(&res).unwrap();
+        if v["status"].as_str().unwrap() != "succeeded" {return Err(Error::new("",""))};
+        Ok(v["processingResult"]["identifiedProfileId"].as_str().unwrap().into())    
+    }
+
     pub fn create_profile(&self, locale: &str) -> Result<String, Error> {
         let b: String = "{\"locale\":\"".to_owned()+locale+"\"}";
         let res = try!(self.request("application/json", "", Some(b.as_bytes())));
@@ -46,7 +59,7 @@ impl Client {
         Ok(v[id].as_str().unwrap().into())
     }
 
-    pub fn identify(&self, ids: Vec<String>, audio: &[u8], short: bool) -> Result<String, Error> {
+    pub fn identify(&self, ids: &Vec<String>, audio: &[u8], short: bool) -> Result<String, Error> {
         let mut param = String::new();
         for id in ids {
             param = format!("{},{}", param, id);
@@ -109,8 +122,12 @@ impl Client {
                         Ok(s)
                     }
                     StatusCode::Accepted => {
-                        let header = res.headers.get::<ContentType>().unwrap();
-                        Ok(header.as_str().into())
+                        let header = res.headers.get::<OperationLocation>().unwrap();
+                        let base = 
+                            "https://westus.api.cognitive.microsoft.com/spid/v1.0/operations/";
+
+                        let (_, status_id) = header.as_str().split_at(base.len());
+                        Ok(status_id.into())
                     }
                     _ => {Err(Error::from_json(&s))}
                 }
