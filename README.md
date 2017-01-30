@@ -17,14 +17,14 @@ fn main() {
 	thread::sleep(time::Duration::from_secs(1));
 	//can add up to 10 ids
 	let mut ids: Vec<String> = Vec::new();
-	ids.push(id)
-	let status_id = client.identify(ids, include_bytes!("path to short audio file), false).unwrap();
+	ids.push(id);
+	let status_id = client.identify(ids, include_bytes!("path to short audio file"), false).unwrap();
 	
 	thread::sleep(time::Duration::from_secs(2));
 	
 	let res = client.get_operation_status_id(&status_id).unwrap();
 	if res == id {
-		println!("user test is talking")
+		println!("user test is talking");
 	}
 }
 ```
