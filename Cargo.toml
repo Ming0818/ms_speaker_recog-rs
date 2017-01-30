@@ -1,0 +1,14 @@
+[package]
+name = "ms_speaker_recog"
+version = "0.1.0"
+authors = ["anon8112 <anon8112dev@gmail.com>"]
+
+[lib]
+name = "ms_speaker_recog"
+path = "src/lib.rs"
+
+[dependencies]
+hyper = "*"
+hyper-native-tls = "*"
+serde_json = "*"
+rustc-serialize = "*"
