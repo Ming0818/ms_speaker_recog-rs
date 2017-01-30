@@ -18,7 +18,7 @@ fn main() {
 	//can add up to 10 ids
 	let mut ids: Vec<String> = Vec::new();
 	ids.push(id);
-	let status_id = client.identify(ids, include_bytes!("path to short audio file"), false).unwrap();
+	let status_id = client.identify(&ids, include_bytes!("path to short audio file"), false).unwrap();
 	
 	thread::sleep(time::Duration::from_secs(2));
 	
